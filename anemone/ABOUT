@@ -1,0 +1,31 @@
+"Anemone" is a generic system written in PHP which aims to be _really_
+extendable in a _really_ simple way. You can use it as normal blog, as
+photoblog, as a base system for you website, even as cms you will be
+able to use it. You can use the template engines and layout styles you
+want once you implemented them, which is very easy and just needs a few
+lines of code.
+
+There are thousends of blog systems and kind of that on the web, but I
+searched for something like this and I did not find anything. Because of
+this I wanted to create something small and simple, but not limited.
+
+To add content you are not forced to use any web based admin frontend.
+You can -- if you want and implement it (it is planned to do this). But
+if you -- like me -- prefer to write content as plaintext, html, wiki
+code or in any template language in a local editor, you can do this.
+Then, just upload this file to a specified directory (per ftp, scp,
+whatever) and anemone will catch this file and store its contents.
+
+You don't need any database. The information are stored in files
+entirely. There are plans to include a sqlite database to allow
+searching and finding content more quickly, but even this is no requirement.
+
+And if your site grows and you want to migrate to a system which handles
+huge amount of data more efficiently, don't worry. As all information is
+stored in plain text files it is very, very easy to write a kind of
+script to extract them, store them in the php objects and migrate them
+to any other system.
+
+As the main purpose of this project is the flexibility and the
+extensibility I want to publish it as soon as possible to receive
+extensions, other styles and layouts and so on from other users.
