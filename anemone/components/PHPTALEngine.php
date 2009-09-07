@@ -1,5 +1,5 @@
 <?php
-	class PHPTALEngine implements ISettable, ITplEngine
+	class PHPTALEngine implements ISettable, ITplEngine, IComponent
 	{
 		private $phptal_include_path = "./lib";
 		private $is_included = false;
@@ -26,14 +26,6 @@
 				$this->$key = $value;
 		}
 		
-		public function getFsBaseDir() {
-			return $this->fs_base_dir;
-		}
-		
-		public function getHttpBaseDir() {
-			return $this->http_base_dir;
-		}
-		
 		public function getProperty($key) {
 			if(in_array($key, $this->getAvailableProperties()))
 				return $this->$key;
@@ -46,6 +38,14 @@
 		
 		public function getFileExtensions() {
 			return $this->tpl_file_extensions;
+		}
+		
+		public function getFsBaseDir() {
+			return $this->fs_base_dir;
+		}
+		
+		public function getHttpBaseDir() {
+			return $this->http_base_dir;
 		}
 		
 		public function parse($tplDir, $tplFile, $args) {

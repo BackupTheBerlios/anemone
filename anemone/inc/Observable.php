@@ -3,21 +3,15 @@
 	{
 		const EVENT_ALL = 0;
 		
-		const EVENT_TPL_START = 1;
-		const EVENT_TPL_END = 2;
+		const EVENT_GET = 3;
+		const EVENT_POST = 4;
 		
-		const EVENT_POST = 3;
+		const EVENT_COMPONENT_INCLUDED = 5;
 		
-		const EVENT_INIT_START = 4;
-		const EVENT_INIT_END = 5;
+		const EVENT_RENDER_START = 6;
+		const EVENT_RENDER_END = 7;
 		
-		const EVENT_COMPONENT_INCLUDED = 6;
-		
-		private $observers;
-		
-		protected function __construct() {
-			$this->observers = array(array());
-		}
+		private $observers = array(array());
 		
 		public function register(IObserver & $observer, $eventType) {
 			$this->observers[$eventType][] = & $observer;

@@ -1,5 +1,5 @@
 <?php
-	class Settings implements IObserver, ISettable
+	class Settings implements IObserver, ISettable, IComponent
 	{
 		/**
 		 * @var array
@@ -16,8 +16,11 @@
 		 */
 		private $subject;
 		
-		function __construct(Observable & $subject) {
+		function __construct() {
 			$this->ini_properties = array();
+		}
+		
+		public function setSubject(Observable & $subject) {
 			$this->subject = & $subject;
 			$this->subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);
 			$this->config_dir = array();

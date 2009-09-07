@@ -14,18 +14,26 @@
 		/**
 		 * @var string
 		 */
-		public $tpl_dir;
-		
-		private $template_engines = array();
+		public $components_directory = "components";
 		
 		/**
-		 * 
+		 * @var string
+		 */
+		private $root_content;
+		
+		/**
+		 * @var string
+		 */
+		private $output;
+	
+		private $content_objects = array();
+		
+		/**
 		 * @var SlimSystem
 		 */
 		private static $instance;
 		
 		/**
-		 * 
 		 * @return SlimSystem
 		 */
 		public static function getInstance() {
@@ -36,8 +44,7 @@
 	        return self::$instance;
 		}
 		
-		protected function __construct() {
-			parent::__construct(); 
+		private function __construct() {
 			$basedir = str_replace("\\", "/", dirname($_SERVER['SCRIPT_NAME']));
 			if(substr($basedir, -1) != "/")
 				$basedir .= "/";
@@ -48,8 +55,8 @@
 				$basedir .= "/";
 			$this->fs_base_dir = $basedir;
 			
-			$this->tpl_dir = $this->fs_base_dir."tpl/";
-			
+			if(isset($_GET))
+				$this->notify(Observable::EVENT_GET, new EventGetArguments());
 			if(isset($_POST))
 				$this->notify(Observable::EVENT_POST, new EventPostArguments());
 		}
@@ -82,19 +89,23 @@
 		}
 		
 		public function getAvailableProperties() {
-			return array("tpl_dir");
+			return array("root_content");
 		}
 		
-		public function registerTemplateEngine(ITplEngine & $engine) {
-			$exts = $engine->getFileExtensions();
-			for($i = 0; $i < count($exts); $i++) {
-				$this->template_engines[$exts[$i]] = & $engine;
-			}
+		public function registerContent($name, IContent & $content) {
+			$this->content_objects[$name] = & $content;
 		}
 		
-		public function initDefaultComponents() {
-			$components_dir = $this->fs_base_dir."components/";
+		public function loadDefaultComponents() {
+			$components_dir = $this->fs_base_dir.$this->components_directory."/";
 			$componentIncludedEvents = array();
+			
+			/**
+			 * self initialization fires component loading event, too. This class is
+			 * the root component. 
+			 */
+			$componentIncludedEvents[] = new EventComponentIncludedArguments($this, __FILE__, __CLASS__, $this);
+			
 			/**
 			 * Search php files and include them to catch all the observers
 			 */
@@ -106,6 +117,8 @@
 			            	$assumed_class_name = substr($file, 0, -4);
 			            	if(class_exists($assumed_class_name)) {
 			            		$_c = new $assumed_class_name($this);
+			            		if($_c instanceof IObserver)
+			            			$_c->setSubject($this);
 			            		$componentIncludedEvents[] = new EventComponentIncludedArguments($this, $components_dir.$file, $assumed_class_name, $_c);
 			            		unset($_c);
 			            	} else {
@@ -124,31 +137,31 @@
 				$this->notify(self::EVENT_COMPONENT_INCLUDED, $event);
 			
 			/**
-			 * After that, register the template engines.
+			 * Then, register content objects
 			 */
 			foreach($componentIncludedEvents as $event)
-				if($event->class_instance != null && $event->class_instance instanceof ITplEngine)
-					$this->registerTemplateEngine($event->class_instance);
+				if($event->class_instance != null && $event->class_instance instanceof IContent)
+					$this->registerContent($event->classname, $event->class_instance);
 		}
 		
-		public function render($rootTemplate) {
-			$ext = substr($rootTemplate, strrpos($rootTemplate, ".")+1);
-			$tplEngine = $this->getTplEngine($ext);
-			if($tplEngine == null){
-				// default: return plain text
-				return nl2br(htmlentities(file_get_contents($this->tpl_dir.$rootTemplate)));
+		public function render() {
+			if(isset($this->content_objects[$this->root_content])) {
+				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, $this->content_objects[$this->root_content]));
+				$this->content_objects[$this->root_content]->render();
+				if($this->content_objects[$this->root_content]->getContentType() != "")
+					header("Content-Type: ".$this->content_objects[$this->root_content]->getContentType());
+				$this->output = $this->content_objects[$this->root_content]->getOutput();
+				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, $this->content_objects[$this->root_content]));
+				return $this->output;
+			} else {
+				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, null));
+				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, null));
+				return "";
 			}
-			return $tplEngine->parse($this->tpl_dir, $rootTemplate, null);
 		}
 		
-		/**
-		 * @param $ext string
-		 * @return ITplEngine
-		 */
-		function getTplEngine($ext) {
-			if(!array_key_exists($ext, $this->template_engines))
-				return null;
-			return $this->template_engines[$ext];
+		public function getOutput() {
+			return $this->output;
 		}
 		
 		function debug() {
