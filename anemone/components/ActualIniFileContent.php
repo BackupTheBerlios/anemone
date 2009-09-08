@@ -37,7 +37,7 @@
 							$output .= $property."[] = ".$val."\n";
 						}
 					} else {
-						$output .= $property." = ".$instance->getProperty($property)."\n";
+						$output .= $property." = ".$instance->$property."\n";
 					}
 				}
 				$output .= "\n";

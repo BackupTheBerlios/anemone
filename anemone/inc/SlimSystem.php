@@ -4,22 +4,22 @@
 		/**
 		 * @var string
 		 */
+		public $root_content;
+
+		/**
+		 * @var string
+		 */
+		private $components_directory = "components";
+		
+		/**
+		 * @var string
+		 */
 		private $http_base_dir;
 		
 		/**
 		 * @var string
 		 */
 		private $fs_base_dir;
-		
-		/**
-		 * @var string
-		 */
-		public $components_directory = "components";
-		
-		/**
-		 * @var string
-		 */
-		private $root_content;
 		
 		/**
 		 * @var string
@@ -61,35 +61,12 @@
 				$this->notify(Observable::EVENT_POST, new EventPostArguments());
 		}
 		
-		public function setProperties($array) {
-			if(!is_array($array))
-				return;
-			foreach($array as $key => $value) {
-				$this->setProperty($key, $value);
-			}
-		}
-		
-		public function setProperty($key, $value) {
-			if(in_array($key, $this->getAvailableProperties()))
-				$this->$key = $value;
-		}
-		
 		public function getFsBaseDir() {
 			return $this->fs_base_dir;
 		}
 		
 		public function getHttpBaseDir() {
 			return $this->http_base_dir;
-		}
-		
-		public function getProperty($key) {
-			if(in_array($key, $this->getAvailableProperties()))
-				return $this->$key;
-			return null;
-		}
-		
-		public function getAvailableProperties() {
-			return array("root_content");
 		}
 		
 		public function registerContent($name, IContent & $content) {
