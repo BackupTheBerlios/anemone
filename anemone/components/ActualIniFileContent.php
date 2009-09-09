@@ -8,9 +8,7 @@
 			$subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);
 		}
 		
-		public function setParentContent(IContent & $parent_content) {
-			
-		}
+		public function setParentContent(IContent & $parent_content) {}
 		
 		public function getContentType() {
 			return "text/plain";
@@ -30,17 +28,22 @@
 			$output = "";
 			foreach($this->loadedSettableClasses as $classname => $instance) {
 				$output .= "[".$classname."]\n";
-				foreach($instance->getAvailableProperties() as $property) {
-					$value = $instance->getProperty($property);
-					if(is_array($value)) {
-						foreach($value as $val) {
-							$output .= $property."[] = ".$val."\n";
+				$available_properties = $instance->getAvailableProperties();
+				if(!is_array($available_properties)) {
+					$output .= "No available properties.\n";
+				} else {
+					foreach($available_properties as $property) {
+						$value = $instance->get($property);
+						if(is_array($value)) {
+							foreach($value as $val) {
+								$output .= $property."[] = ".$val."\n";
+							}
+						} else {
+							$output .= $property." = ".$instance->get($property)."\n";
 						}
-					} else {
-						$output .= $property." = ".$instance->$property."\n";
 					}
 				}
-				$output .= "\n";
+					$output .= "\n";
 			}
 			$this->output = $output;
 			return $this->output;

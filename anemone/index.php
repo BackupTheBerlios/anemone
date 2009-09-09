@@ -1,6 +1,8 @@
 <?php
+	header("Content-Type: text/plain");
 	error_reporting(E_ALL);
 	
+	include dirname(__FILE__)."/util.php";
 	ini_set("include_path", ini_get("include_path").PATH_SEPARATOR."./inc/".PATH_SEPARATOR."./lib/");
 	function __autoload($class_name) {
 		if(class_exists($class_name, false))

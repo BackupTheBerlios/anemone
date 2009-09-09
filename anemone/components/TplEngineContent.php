@@ -1,8 +1,10 @@
 <?php
-	class TplEngineContent implements IContent, IObserver, ISettable
+	class TplEngineContent extends Settable implements IContent, IObserver
 	{
 		public $template;
 		public $tpl_dir;
+		
+		protected $settable_properties = array("template", "tpl_dir");
 		
 		private $template_engines = array();
 		private $parent_content;
@@ -39,7 +41,7 @@
 		
 		public function render() {
 			$this->output = "";
-			$ext = substr($this->template, strrpos($this->template, ".")+1);
+			$ext = substr($this->template, strrpos($this->get("template"), ".")+1);
 			$tpl_engine = $this->getTplEngine($ext);
 			if($tpl_engine == null){
 				// default: return plain text

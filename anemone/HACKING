@@ -1,0 +1,35 @@
+Q:	How to create a component using the system wide setting?
+
+A:	Just extend the class Settable and define the names of the
+	variables which should be settable in a (public or protected,
+	so that the parent class can access them) variable called
+	$settable_properties:
+
+		protected $settable_properties = array("template", "tpl_dir");
+
+Q:	How to create a component using the system wide setting if
+	this component is extending another class yet?
+
+A:	PHP does not support multiple inheritance. So you will have
+	to implement ISettable and do a little bit of coding yourself.
+	For example:
+	
+		public function set($varname, $value) {
+			if(in_array($varname, $this->getAvailableProperties()))
+				return $this->$varname = $value;
+		}
+		
+		public function get($varname) {
+			if(in_array($varname, $this->getAvailableProperties()))
+				return $this->$varname;
+		}
+		
+		public function getAvailableProperties() {
+			return array("phptal_include_path", "tpl_file_extensions");
+		}
+	
+	Of course you can manage this in your class the way you like, you can
+	experiment with __get and __set and store the settings in a object
+	variable of the type Settable or SettingsStore and redirecting set(),
+	get() and getAvailableProperties() to the respective methods of this
+	object.

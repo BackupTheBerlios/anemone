@@ -1,24 +1,17 @@
 <?php
-	class Settings implements IObserver, ISettable, IComponent
+	class Settings implements IObserver, IComponent, ISettable
 	{
-		/**
-		 * @var array
-		 */
-		public $config_dir = array();
+		public $config_dir;
 		
 		/**
 		 * @var array
 		 */
-		private $ini_properties;
+		private $ini_properties = array();
 		
 		/**
 		 * @var Observable
 		 */
 		private $subject;
-		
-		function __construct() {
-			$this->ini_properties = array();
-		}
 		
 		public function setSubject(Observable & $subject) {
 			$this->subject = & $subject;
@@ -48,43 +41,59 @@
 			        closedir($dh);
 			        
 		    		if(isset($this->ini_properties[__CLASS__])) {
-						$this->setProperties($this, $this->ini_properties[__CLASS__]);
+						$this->applyPropertiesToObject($this, $this->ini_properties[__CLASS__]);
 					}
 		    	}
 			}
 		}
 		
-		public function setProperties(& $settable, $properties) {
+		public function applyPropertiesToObject(ISettable & $settable, $properties) {
 			foreach($properties as $key => $value)
-				$settable->$key = $value;
+				$settable->set($key, $value);
 		}
 		
-		// TODO
-		public function __set($key, $value) {
-			if($key == "config_dir") {
-				if(is_array($value)){
-					$diff_array = array_diff($value, $this->config_dir);
-					if(count($diff_array) == 0)
-						return;
-					$this->config_dir = array_merge($this->config_dir, $diff_array);
-					$this->loadSettingsFromDirectories($diff_array);
-				} else {
-					if(in_array($value, $this->config_dir)) {
-						return;
-					}
-					$diff_array = array($value);
-					$this->config_dir = array_merge($this->config_dir, $diff_array);
-					$this->loadSettingsFromDirectory($value);
-				}
-				return;
-			}
-		}
-		
-		public function setProperty($key, $value) {
+		public function set($key, $value) {
 			if(in_array($key, $this->getAvailableProperties())) {
-
-				$this->$key = $value;
+				if($key == "config_dir") {
+					$this->setConfigDir($value);
+				} else {
+					$this->$key = $value;
+				}
 			}
+		}
+		
+		/**
+		 * @param $value
+		 * @return array
+		 */
+		private function setConfigDir($value) {
+			$key = "config_dir";
+			if(is_array($value)){
+				$config_dir = $this->get($key);
+				if(!is_array($config_dir))
+					$config_dir = array($config_dir);
+				$diff_array = array_diff($value, $config_dir);
+				if(count($diff_array) == 0)
+					return;
+				$this->$key = $diff_array;
+				$this->loadSettingsFromDirectories($diff_array);
+			} else {
+				if(in_array($value, $config_dir)) {
+					return;
+				}
+				$diff_array = array($value);
+				$this->$key = $diff_array;
+				$this->loadSettingsFromDirectory($value);
+			}
+		}
+		
+		public function get($varname) {
+			if(in_array($varname, $this->getAvailableProperties()))
+				return $this->$varname;
+		}
+		
+		public function getAvailableProperties() {
+			return array("config_dir");
 		}
 		
 		public function notify(Observable & $subject, $eventType, IEventArguments $arguments) {
@@ -106,7 +115,7 @@
 			if($classname == __CLASS__)
 				return;
 			if(isset($this->ini_properties[$classname]))
-				$this->setProperties($settable, $this->ini_properties[$classname]);
+				$this->applyPropertiesToObject($settable, $this->ini_properties[$classname]);
 		}
 	}
 ?>
