@@ -3,7 +3,7 @@
 	{
 		public function set($varname, $value) {
 			if(in_array($varname, $this->getAvailableProperties()))
-				return $this->$varname = $value;
+				$this->$varname = $value;
 		}
 		
 		public function get($varname) {

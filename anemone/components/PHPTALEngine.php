@@ -6,7 +6,9 @@
 		
 		private $is_included = false;
 		
-		public function __construct(SlimSystem & $system) {
+		public static function createInstance(SlimSystem & $system) {
+			$c = __CLASS__;
+			return new $c();
 		}
 		
 		private function include_php_tal_file() {

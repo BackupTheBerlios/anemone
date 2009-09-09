@@ -1,34 +1,15 @@
 <?php
 	class SlimSystem extends Observable implements ISettable
 	{
-		/**
-		 * public settable variables
-		 * @var string
-		 */
-		public $root_content_class;
-		
-		
-		/**
-		 * @var string
-		 */
 		private $http_base_dir;
-	
-		/**
-		 * @var string
-		 */
 		private $fs_base_dir;
-	
-		/**
-		 * @var string
-		 */
+		
 		private $components_directory = "components";
-	
-		/**
-		 * @var string
-		 */
-		private $output;
-	
-		private $content_objects = array();
+		private $page;
+		
+		private $template_dir = array();
+		private $template_engines = array();
+		private $pages = array();
 	
 		/**
 		 * @var SlimSystem
@@ -64,15 +45,19 @@
 		}
 	
 		public function set($varname, $value) {
+			if($varname == "default_page")
+				$varname = "page";
 			$this->$varname = $value;
 		}
 		
 		public function get($varname) {
+			if($varname == "default_page")
+				$varname = "page";
 			return $this->$varname;
 		}
 		
 		public function getAvailableProperties() {
-			return array("root_content_class");
+			return array("template_dir", "default_page");
 		}
 		
 		public function getFsBaseDir() {
@@ -81,10 +66,6 @@
 	
 		public function getHttpBaseDir() {
 			return $this->http_base_dir;
-		}
-	
-		public function registerContent($name, IContent & $content) {
-			$this->content_objects[$name] = & $content;
 		}
 	
 		public function loadDefaultComponents() {
@@ -107,11 +88,13 @@
 							include_once $components_dir.$file;
 							$assumed_class_name = substr($file, 0, -4);
 							if(class_exists($assumed_class_name)) {
-								$_c = new $assumed_class_name($this);
-								if($_c instanceof IObserver)
-									$_c->setSubject($this);
-								$componentIncludedEvents[] = new EventComponentIncludedArguments($this, $components_dir.$file, $assumed_class_name, $_c);
-								unset($_c);
+								if(is_callable("$assumed_class_name::createInstance", false, $fn)) {
+									$c = call_user_func(array($assumed_class_name, 'createInstance'), $this);
+									if($c instanceof IObserver)
+										$c->setSubject($this);
+									$componentIncludedEvents[] = new EventComponentIncludedArguments($this, $components_dir.$file, $assumed_class_name, $c);
+									unset($c);
+								}
 							} else {
 								$componentIncludedEvents[] = new EventComponentIncludedArguments($this, $components_dir.$file, $assumed_class_name, null);
 							}
@@ -125,35 +108,58 @@
 			 * necessary if the components try to communicate to each other on loading.
 			 */
 			foreach($componentIncludedEvents as $event)
-			$this->notify(self::EVENT_COMPONENT_INCLUDED, $event);
+				$this->notify(self::EVENT_COMPONENT_INCLUDED, $event);
+
+			/**
+			 * After this, register template engines
+			 */
+			foreach($componentIncludedEvents as $event)
+				if($event->class_instance != null && $event->class_instance instanceof ITplEngine)
+					$this->registerTemplateEngine($event->class_instance);
 				
 			/**
 			 * Then, register content objects
 			 */
 			foreach($componentIncludedEvents as $event)
-			if($event->class_instance != null && $event->class_instance instanceof IContent)
-				$this->registerContent($event->classname, $event->class_instance);
+				if($event->class_instance != null && $event->class_instance instanceof IContent)
+					$this->registerPage($event->class_instance);
 		}
 	
+			
+		public function registerPage(IContent & $content) {
+			$pages = $content->getPages();
+			for($i = 0; $i < count($pages); $i++)
+				$this->pages[$pages[$i]] = & $content;
+		}
+		
+		public function registerTemplateEngine(ITplEngine & $engine) {
+			$exts = $engine->getFileExtensions();
+			for($i = 0; $i < count($exts); $i++)
+				$this->template_engines[$exts[$i]] = & $engine;
+		}
+		
 		public function render() {
-			$root_content_class = $this->get("root_content_class");
-			if(isset($this->content_objects[$root_content_class])) {
-				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, $this->content_objects[$root_content_class]));
-				$this->content_objects[$root_content_class]->render();
-				if($this->content_objects[$root_content_class]->getContentType() != "")
-					header("Content-Type: ".$this->content_objects[$root_content_class]->getContentType());
-				$this->output = $this->content_objects[$root_content_class]->getOutput();
-				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, $this->content_objects[$root_content_class]));
-				return $this->output;
+			$page = $this->get("page");
+			if(isset($this->pages[$page])) {
+				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, $this->pages[$page]));
+				$output = $this->pages[$page]->render();
+				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, $this->pages[$page]));
+				return $output;
 			} else {
 				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, new NullContent()));
 				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, new NullContent()));
 				return "";
 			}
 		}
-	
-		public function getOutput() {
-			return $this->output;
+		
+		/**
+		 * @param $ext string
+		 * @return ITplEngine
+		 */
+		public function getTplEngine($ext) {
+			if(!array_key_exists($ext, $this->template_engines))
+				$ext = "dummy";
+			return $this->template_engines[$ext];
 		}
 	}
 ?>

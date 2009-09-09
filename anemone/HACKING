@@ -2,11 +2,12 @@ Q:	How to write a component?
 
 	Write a class, put it into a component directory and
 	Implement the IComponent interface. This means that you
-	need a public constructor accepting the main system class
-	as argument.
+	need a static constructing method accepting the main system
+	class as argument.
 	
-		public function __construct(SlimSystem & $system) {
-			// do some great stuff
+		public static function createInstance(SlimSystem & $system) {
+			$c = __CLASS__;
+			return new $c();
 		}
 		
 	That's all you need to do. Of course this component won't do
@@ -21,6 +22,17 @@ Q:	How to write a component?
 	implementing the ITplEngine interface. Use this if you want to
 	add and use your favourite template engine to this system. Have
 	a look at the existing template engine components as a reference.
+	
+	Keep in mind that the main system will not keep the class once
+	constructed. Only content providing classes implementing the
+	IContent interface will be registered and kept in an array so that
+	their render() method can be called later. All components not
+	implementing the IContent interface may be kept by other components
+	which are listening to the EVENT_COMPONENT_INCLUDED event. So is
+	TplEngineContent doing, which is keeping references to all components
+	implementing the ITplEngine interface and the content provider
+	components, implementing the IContentProvider interface. So be sure to
+	register your component to any event if the instance needs to be kept.
 
 Q:	How to create a component using the system wide setting?
 
@@ -29,7 +41,7 @@ A:	Just extend the class Settable and define the names of the
 	so that the parent class can access them) variable called
 	$settable_properties:
 
-		protected $settable_properties = array("template", "tpl_dir");
+		protected $settable_properties = array("property_one", "property_two");
 
 Q:	How to create a component using the system wide setting if
 	this component is extending another class yet?
@@ -49,7 +61,7 @@ A:	PHP does not support multiple inheritance. So you will have
 		}
 		
 		public function getAvailableProperties() {
-			return array("phptal_include_path", "tpl_file_extensions");
+			return array("property_one", "property_two");
 		}
 	
 	Of course you can manage this in your class the way you like, you can

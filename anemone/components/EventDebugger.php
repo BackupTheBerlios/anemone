@@ -3,7 +3,13 @@
 	{
 		private $output = "";
 		
-		public function __construct(SlimSystem & $system) {
+		public static function createInstance(SlimSystem & $system) {
+			$c = __CLASS__;
+			return new $c();
+		}
+		
+		public function getPages() {
+			return array();
 		}
 		
 		public function setSubject(Observable & $subject) {
@@ -51,18 +57,8 @@
 			return $obj;
 		}
 		
-		public function setParentContent(IContent & $parent_content){}
-		
 		public function render(){
 			return $this->output;
-		}
-		
-		public function getOutput() {
-			return $this->output;
-		}
-		
-		public function getContentType() {
-			return "text/plain";
 		}
 	}
 ?>

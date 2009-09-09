@@ -5,6 +5,6 @@
 		 * @return array
 		 */
 		public function getFileExtensions();
-		public function parse($tplDir, $tplFile, $arguments);
+		public function parse($tplDir, $tplFile, $args);
 	}
 ?>

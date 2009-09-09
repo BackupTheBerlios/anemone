@@ -1,9 +1,7 @@
 <?php
 	interface IContent
 	{
-		public function setParentContent(IContent & $parent_content);
+		public function getPages();
 		public function render();
-		public function getOutput();
-		public function getContentType();
 	}
 ?>

@@ -2,19 +2,18 @@
 	class ActualIniFileContent implements IContent, IObserver, IComponent
 	{
 		private $loadedSettableClasses = array();
-		private $output;
 		
-		public function __construct(SlimSystem & $system) {
+		public static function createInstance(SlimSystem & $system) {
+			$c = __CLASS__;
+			return new $c();
 		}
 		
 		public function setSubject(Observable & $subject) {
 			$subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);
 		}
 		
-		public function setParentContent(IContent & $parent_content) {}
-		
-		public function getContentType() {
-			return "text/plain";
+		public function getPages() {
+			return array("systemsettings");
 		}
 		
 		public function notify(Observable & $subject, $eventType, IEventArguments $arguments) {
@@ -29,11 +28,12 @@
 		
 		public function render() {
 			$output = "";
+			echo "render called";
 			foreach($this->loadedSettableClasses as $classname => $instance) {
 				$output .= "[".$classname."]\n";
 				$available_properties = $instance->getAvailableProperties();
-				if(!is_array($available_properties)) {
-					$output .= "No available properties.\n";
+				if(!is_array($available_properties) || count($available_properties) == 0) {
+					$output .= "; No available properties.\n";
 				} else {
 					foreach($available_properties as $property) {
 						$value = $instance->get($property);
@@ -46,14 +46,9 @@
 						}
 					}
 				}
-					$output .= "\n";
+				$output .= "\n";
 			}
-			$this->output = $output;
-			return $this->output;
-		}
-		
-		public function getOutput() {
-			return $this->output;
+			return $output;
 		}
 	}
 ?>

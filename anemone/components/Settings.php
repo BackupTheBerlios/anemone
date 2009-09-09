@@ -13,7 +13,9 @@
 		 */
 		private $subject;
 		
-		public function __construct(SlimSystem & $system) {
+		public static function createInstance(SlimSystem & $system) {
+			$c = __CLASS__;
+			return new $c();
 		}
 		
 		public function setSubject(Observable & $subject) {

@@ -1,6 +1,10 @@
 <?php
 	interface IComponent
 	{
-		function __construct(SlimSystem & $system);
+		/**
+		 * @param SlimSystem $system
+		 * @return IComponent
+		 */
+		static function createInstance(SlimSystem & $system);
 	}
 ?>

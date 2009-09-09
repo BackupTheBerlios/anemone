@@ -1,8 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Anemone Test Page</title>
+		<title tal:content="doc/title">Anemone Test Page</title>
+		<link tal:repeat="stylesheet doc/getCssFiles" tal:attributes="href stylesheet/href" rel="stylesheet" href="base.css" type="text/css"/>
+		<script tal:repeat="jsfile doc/getJsFiles" tal:attributes="href jsfile/src" src="base.js" type="text/javascript" />
 	</head>
 	<body>
+		<div id="maincontent">
+			<div tal:repeat="item doc/items">
+				<img src="item/src" />
+			</div>
+		</div>
 	</body>
 </html>
