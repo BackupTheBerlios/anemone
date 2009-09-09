@@ -1,7 +1,10 @@
 <?php
-	class EventDebugger implements IObserver, IContent
+	class EventDebugger implements IObserver, IContent, IComponent
 	{
 		private $output = "";
+		
+		public function __construct(SlimSystem & $system) {
+		}
 		
 		public function setSubject(Observable & $subject) {
 			$this->debug("\n".__CLASS__." constructed by ".get_class($subject));

@@ -1,3 +1,27 @@
+Q:	How to write a component?
+
+	Write a class, put it into a component directory and
+	Implement the IComponent interface. This means that you
+	need a public constructor accepting the main system class
+	as argument.
+	
+		public function __construct(SlimSystem & $system) {
+			// do some great stuff
+		}
+		
+	That's all you need to do. Of course this component won't do
+	anything now. To make the component doing something you have
+	to either implement an Observer (IObserver), which listens to
+	events fired by the main system object or you implement a
+	Content component (implementing IContent) which will be
+	registered by the main system object and so be available to be
+	rendered.
+	
+	There is another, more special type of components: the components
+	implementing the ITplEngine interface. Use this if you want to
+	add and use your favourite template engine to this system. Have
+	a look at the existing template engine components as a reference.
+
 Q:	How to create a component using the system wide setting?
 
 A:	Just extend the class Settable and define the names of the

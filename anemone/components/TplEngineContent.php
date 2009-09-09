@@ -1,5 +1,5 @@
 <?php
-	class TplEngineContent extends Settable implements IContent, IObserver
+	class TplEngineContent extends Settable implements IContent, IObserver, IComponent
 	{
 		public $template;
 		public $tpl_dir;
@@ -9,6 +9,9 @@
 		private $template_engines = array();
 		private $parent_content;
 		private $output;
+		
+		public function __construct(SlimSystem & $system) {
+		}
 		
 		public function setSubject(Observable & $subject) {
 			$subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);

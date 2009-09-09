@@ -13,6 +13,9 @@
 		 */
 		private $subject;
 		
+		public function __construct(SlimSystem & $system) {
+		}
+		
 		public function setSubject(Observable & $subject) {
 			$this->subject = & $subject;
 			$this->subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);

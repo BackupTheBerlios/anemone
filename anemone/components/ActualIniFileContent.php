@@ -1,8 +1,11 @@
 <?php
-	class ActualIniFileContent implements IContent, IObserver
+	class ActualIniFileContent implements IContent, IObserver, IComponent
 	{
 		private $loadedSettableClasses = array();
 		private $output;
+		
+		public function __construct(SlimSystem & $system) {
+		}
 		
 		public function setSubject(Observable & $subject) {
 			$subject->register($this, Observable::EVENT_COMPONENT_INCLUDED);

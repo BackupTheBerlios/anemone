@@ -6,6 +6,9 @@
 		
 		private $is_included = false;
 		
+		public function __construct(SlimSystem & $system) {
+		}
+		
 		private function include_php_tal_file() {
 			$previous_include_path = ini_get("include_path");
 			ini_set("include_path", $this->get("phptal_include_path").PATH_SEPARATOR.$previous_include_path);
