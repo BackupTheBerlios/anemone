@@ -1,7 +1,7 @@
 <?php
 	class Gallery extends Settable implements IComponent, IContent
 	{
-		private $items = array();
+		public $items = array();
 		private $imgdir;
 		protected $settable_properties = array("image_directory");
 		
@@ -36,8 +36,9 @@
 		}
 		
 		public function render(){
-			$tpl = "index.tal";
-			SlimSystem::getInstance()->getTplEngine("tal");
+			$tpl = "gallery.tal";
+			$tpl_engine = SlimSystem::getInstance()->getTplEngine("tal");
+			return $tpl_engine->parse("./tpl/", $tpl, $this);
 		}
 	}
 	

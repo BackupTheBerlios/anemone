@@ -45,7 +45,7 @@
 			 * @var PHPTAL
 			 */
 			$tpl = new PHPTAL($tplDir."/".$tplFile);
-			$tpl->a = $args;
+			$tpl->doc = $args;
 			return $tpl->execute();
 		}
 	}

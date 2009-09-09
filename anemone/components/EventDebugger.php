@@ -51,7 +51,8 @@
 			}
 			
 			if(is_array($obj)) {
-				return implode(", ", $obj);
+				// TODO:
+				// return @implode(", ", $obj);
 			}
 			
 			return $obj;

@@ -28,7 +28,6 @@
 		
 		public function render() {
 			$output = "";
-			echo "render called";
 			foreach($this->loadedSettableClasses as $classname => $instance) {
 				$output .= "[".$classname."]\n";
 				$available_properties = $instance->getAvailableProperties();
@@ -41,6 +40,8 @@
 							foreach($value as $val) {
 								$output .= $property."[] = ".$val."\n";
 							}
+							if(count($value) == 0)
+								$output .= $property."[] = \n";
 						} else {
 							$output .= $property." = ".$instance->get($property)."\n";
 						}

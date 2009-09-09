@@ -148,7 +148,7 @@
 			} else {
 				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, new NullContent()));
 				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, new NullContent()));
-				return "";
+				return "nothing found.";
 			}
 		}
 		
