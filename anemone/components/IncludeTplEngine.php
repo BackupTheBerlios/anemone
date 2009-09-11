@@ -1,5 +1,5 @@
 <?php
-	class DummyTplEngine implements ITplEngine, IComponent
+	class IncludeTplEngine implements ITplEngine, IComponent
 	{
 		public static function createInstance(SlimSystem & $system) {
 			$c = __CLASS__;
@@ -7,11 +7,15 @@
 		}
 		
 		public function getFileExtensions() {
-			return array("dummy");
+			return array("php", "phtml", "html", "null");
 		}
 		
 		public function parse($tplDir, $tplFile, $args) {
-			return nl2br(htmlentities(file_get_contents($tplDir.$tplFile)));
+			ob_start();
+			include($tplDir.$tplFile);
+			$out = ob_get_contents();
+			ob_end_clean();
+			return $out;
 		}
 	}
 ?>

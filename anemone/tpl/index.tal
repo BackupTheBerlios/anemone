@@ -6,10 +6,7 @@
 		<script tal:repeat="jsfile doc/getJsFiles" tal:attributes="href jsfile/src" src="base.js" type="text/javascript" />
 	</head>
 	<body>
-		<div id="maincontent">
-			<div tal:repeat="item doc/items">
-				<img src="item/src" />
-			</div>
+		<div id="maincontent" tal:content="structure doc/content">
 		</div>
 	</body>
 </html>

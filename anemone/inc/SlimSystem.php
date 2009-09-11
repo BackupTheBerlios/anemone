@@ -5,10 +5,12 @@
 		private $fs_base_dir;
 		
 		private $components_directory = "components";
+		private $root_class = "Document";
 		private $page;
 		
 		private $template_dir = array();
 		private $template_engines = array();
+		private $content_provider = array();
 		private $pages = array();
 	
 		/**
@@ -57,7 +59,7 @@
 		}
 		
 		public function getAvailableProperties() {
-			return array("template_dir", "default_page");
+			return array("template_dir", "default_page", "root_class");
 		}
 		
 		public function getFsBaseDir() {
@@ -128,6 +130,7 @@
 			
 		public function registerPage(IContent & $content) {
 			$pages = $content->getPages();
+			$this->content_provider[get_class($content)] = & $content;
 			for($i = 0; $i < count($pages); $i++)
 				$this->pages[$pages[$i]] = & $content;
 		}
@@ -140,16 +143,17 @@
 		
 		public function render() {
 			$page = $this->get("page");
+			$output = "";
 			if(isset($this->pages[$page])) {
 				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, $this->pages[$page]));
 				$output = $this->pages[$page]->render();
 				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, $this->pages[$page]));
-				return $output;
 			} else {
 				$this->notify(Observable::EVENT_RENDER_START, new EventRenderArguments($this, new NullContent()));
 				$this->notify(Observable::EVENT_RENDER_END, new EventRenderArguments($this, new NullContent()));
-				return "nothing found.";
+				$output = "";
 			}
+			return $output;
 		}
 		
 		/**

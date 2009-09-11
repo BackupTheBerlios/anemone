@@ -51,5 +51,14 @@
 			}
 			return $output;
 		}
+		
+		private $parent_content;
+		public function setParent(IContent & $parent_content) {
+			$this->parent_content = $parent_content;
+		}
+		
+		public function getParent() {
+			return $this->parent_content;
+		}
 	}
 ?>
